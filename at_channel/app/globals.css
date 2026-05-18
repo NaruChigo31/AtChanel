@@ -7,6 +7,7 @@
     font-family: "Quantico", sans-serif;
     font-weight: 700;
     font-style: normal;
+    font-size: 14px;
 }
 
 main{
@@ -34,7 +35,7 @@ header:has(:only-child) {
 }
 header h2{
     color: white;
-    font-size: 32px;
+    font-size: 16px;
     font-family: "Press Start 2P", system-ui;
     font-weight: 400;
     font-style: normal;

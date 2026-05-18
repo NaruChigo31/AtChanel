@@ -32,7 +32,7 @@ export default function Home() {
       }
     )
   }
-  
+
   function getBoards(){
     fetch(`${apiUrl}/board`,{
       method: "GET"
@@ -42,7 +42,8 @@ export default function Home() {
       async (data) =>{
         if(!data.error){
           setBoards(await data.boards)
-          console.log(data)
+          // console.log(typeof(data.boards))
+          console.log(data.boards)
         } else{
           console.error(data.error)
           // throw Error("No data")
@@ -58,7 +59,7 @@ export default function Home() {
   return (
     <main>
       <header>
-          <h2>@Channel</h2>
+          <h2 className={styles.logo}>@Channel</h2>
       </header>
       <div className={styles.main}>
         { gif &&

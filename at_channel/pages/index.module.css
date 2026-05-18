@@ -10,6 +10,10 @@
   gap: 15px;
 }
 
+.logo{
+  font-size: 24px;
+}
+
 .mainGif{
   max-height: 150px;
 }

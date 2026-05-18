@@ -16,7 +16,7 @@ app.use(cors());
 // router.use(express.static('public'))
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/public", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "static")));
 
 

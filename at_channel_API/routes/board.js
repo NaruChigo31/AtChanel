@@ -5,11 +5,12 @@ const { Op } = require("sequelize");
 
 
 const multer = require("multer")
-const path = require("path")
+const path = require("path");
+const { log } = require('console');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, `./public`)
+    cb(null, `./public/uploads`)
   },
   filename: (req, file, cb) => {
 
@@ -365,7 +366,118 @@ router.post("/:tag/thread/:threadId/reply", upload.single("file"), async (req, r
     }
 })
 
-router.get("/:tag/thread", async (req, res) =>{
+// router.get("/:tag/thread", async (req, res) =>{
+        
+//     let board = await Boards.findOne({
+//         where:{
+//             tag: req.params.tag 
+//         }
+//     })
+//     if (!board){
+//         return res.status(404).json({code:404, error: "There's no such a board"})
+//     }
+    
+
+//     let page = Number(req.query.page) || 1
+//     const limit = 10
+//     const offset = (page-1)*limit
+
+//     let threads = {}
+//     let threadsFound
+    
+//     if(req.query.catalog){
+//         threadsFound = await Posts.findAll({
+//             where:{
+//                 boardId: board.dataValues.id,
+//                 isArchived: false,
+//                 threadId: null
+//             }
+//         })
+//         if(threadsFound.length < 1){
+//             return res.status(404).json({code:404, error: "There's no threads on board"})
+//         }
+
+//         for (let thread of threadsFound){
+
+//             let repliesCount = await Posts.count({
+//                 where:{
+//                     threadId: thread.dataValues.id
+//                 }
+//             })
+//             let imagesCount = await Posts.count({
+//                 where:{
+//                     threadId: thread.dataValues.id,
+//                     fileOrigName: {
+//                         [Op.not]: null
+//                     }
+//                 }
+//             })
+
+//             threads[thread.dataValues.id] = {
+//                 thread: thread,
+//                 repliesCount: repliesCount,
+//                 imagesCount: imagesCount
+//             }
+//         }
+
+//     } else{
+//         threadsFound = await Posts.findAll({
+//             where:{
+//                 boardId: board.dataValues.id,
+//                 isArchived: false,
+//                 threadId: null
+//             },
+//             offset: offset,
+//             limit: limit
+//         })
+//         if(threadsFound.length < 1){
+//             return res.status(404).json({code:404, error: "There's no threads on board"})
+//         }
+
+//         for (let thread of threadsFound){
+//             let last5Replies = await Posts.findAll({
+//                 where:{
+//                     threadId: thread.dataValues.id
+//                 },
+//                 limit: 5,
+//                 order: [['createdAt', 'DESC']]
+//             })
+
+//             let repliesCount = await Posts.count({
+//                 where:{
+//                     threadId: thread.dataValues.id
+//                 }
+//             })
+//             let imagesCount = await Posts.count({
+//                 where:{
+//                     threadId: thread.dataValues.id,
+//                     fileOrigName: {
+//                         [Op.not]: null
+//                     }
+//                 }
+//             })
+
+//             threads[thread.dataValues.id] = {
+//                 thread: thread,
+//                 repliesCount: repliesCount,
+//                 imagesCount: imagesCount,
+//                 replies: last5Replies
+//             }
+//         }
+//     }
+
+//     const threadsUnarchivedCount = await Posts.count({
+//         where:{
+//             boardId: board.dataValues.id,
+//             isArchived: false,
+//             threadId: null
+//         }
+//     })
+
+//     return res.status(200).json({ code:200, threads: threads, countUnarch: threadsUnarchivedCount })
+// })
+
+router.get("/:tag/thread/", async (req, res) =>{
         
     let board = await Boards.findOne({
         where:{
@@ -375,26 +487,29 @@ router.get("/:tag/thread", async (req, res) =>{
     if (!board){
         return res.status(404).json({code:404, error: "There's no such a board"})
     }
+
     
 
     let page = Number(req.query.page) || 1
-    const limit = 15
+    const limit = 10
     const offset = (page-1)*limit
 
-    let threads = {}
+    let threads = []
     let threadsFound
+    let threadCountTotal
     
-    if(req.query.catalog){
+    if(req.query.status === "catalog"){
         threadsFound = await Posts.findAll({
             where:{
                 boardId: board.dataValues.id,
                 isArchived: false,
-                threadId: null
-            }
+                threadId: null,
+            },
+            order: [['isPinned', 'DESC'], ['createdAt', 'DESC']]
         })
-        if(threadsFound.length < 1){
-            return res.status(404).json({code:404, error: "There's no threads on board"})
-        }
+
+
+        threadCountTotal = threadsFound.length
 
         for (let thread of threadsFound){
 
@@ -412,11 +527,32 @@ router.get("/:tag/thread", async (req, res) =>{
                 }
             })
 
-            threads[thread.dataValues.id] = {
+            threads.push({
+                id : thread.dataValues.id,
                 thread: thread,
                 repliesCount: repliesCount,
                 imagesCount: imagesCount
-            }
+            })
+        }
+
+    } else if (req.query.status === "archived"){
+        threadsFound = await Posts.findAll({
+            where:{
+                boardId: board.dataValues.id,
+                isArchived: true,
+                threadId: null,
+            },
+            order: [['isPinned', 'DESC'], ['createdAt', 'DESC']]
+        })
+
+        threadCountTotal = threadsFound.length
+
+        for (let thread of threadsFound){
+
+            threads.push({
+                id : thread.dataValues.id,
+                thread: thread
+            })
         }
 
     } else{
@@ -427,11 +563,20 @@ router.get("/:tag/thread", async (req, res) =>{
                 threadId: null
             },
             offset: offset,
-            limit: limit
+            limit: limit,
+            order: [['isPinned', 'DESC'], ['createdAt', 'DESC']]
         })
-        if(threadsFound.length < 1){
-            return res.status(404).json({code:404, error: "There's no threads on board"})
-        }
+        console.log(threadsFound)
+
+
+        threadCountTotal = await Posts.count({
+            where:{
+                boardId: board.dataValues.id,
+                isArchived: false,
+                threadId: null
+            }
+        })
+
 
         for (let thread of threadsFound){
             let last5Replies = await Posts.findAll({
@@ -456,17 +601,25 @@ router.get("/:tag/thread", async (req, res) =>{
                 }
             })
 
-            threads[thread.dataValues.id] = {
+            let lastRepliesList = []
+
+            for(let reply of last5Replies){
+                lastRepliesList.push(reply)
+            }
+            lastRepliesList.reverse()
+
+            threads.push({
+                id: thread.dataValues.id,
                 thread: thread,
                 repliesCount: repliesCount,
                 imagesCount: imagesCount,
-                replies: last5Replies
-            }
+                replies: lastRepliesList
+            })
         }
     }
 
-    return res.status(200).json({ code:200, threads: threads })
-})
 
+    return res.status(200).json({ code:200, threads: threads, count: threadCountTotal })
+})
 
 module.exports = router;
