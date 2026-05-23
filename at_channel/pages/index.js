@@ -100,6 +100,7 @@ export default function Home() {
                     <Link key={idx} href={board.tag}>/{board.tag}/ - {board.topic}</Link>
                   )
                 })}
+                {/* to be removed  */}
               {/* <Link href="/b">/b/ - random</Link>
               <Link href="/v">/v/ - Video Games</Link>
               <Link href="/e">/e/ - Ecchi</Link>
