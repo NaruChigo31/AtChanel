@@ -1,0 +1,57 @@
+.threads{
+    /* display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
+    flex-flow: wrap; */
+    display: grid;
+    grid-template-columns: auto auto;
+    width: 100%;
+    border-top: solid #30262E 3px;
+    border-bottom: solid #30262E 3px;
+}
+
+.thread{
+    /* display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
+    flex-flow: wrap; */
+    display: inline flow-root;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    gap: 10px;
+    border-bottom: solid #30262E 3px;
+    /* background-color: aqua; */
+}
+
+.Op {
+    display: block;
+}
+
+.userName{
+    color: #B01E68;
+}
+.subject{
+    color: #DC3535;
+
+}
+.postDate{
+    color: #202020;
+}
+
+.threadImage{
+    max-height: 250px;
+}
+
+.replyImage{
+    max-height: 125px;
+}
+
+.left{
+    border-right: solid #30262E 3px;
+}
+.right{
+    /* border-left: solid #30262E 2px; */
+}

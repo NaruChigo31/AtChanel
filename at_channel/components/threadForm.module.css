@@ -1,0 +1,22 @@
+.initialDiv{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+}
+
+.hidden{
+    display: none;
+}
+
+.warn{
+    color: #951919;
+    white-space: pre-wrap;
+}

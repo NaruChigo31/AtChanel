@@ -1,4 +1,6 @@
-export default function Thread({ threads, styles, apiUrl }){
+import styles from "./threads.module.css";
+
+export default function Thread({ threads, apiUrl }){
     
     function dateRefmat(date){    
       const daysList = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -46,6 +48,7 @@ export default function Thread({ threads, styles, apiUrl }){
           {threads.map((thread, idx) =>{
             let threadInfo = thread["thread"] 
             let replies = thread["replies"]
+            
             return(
               // if index is 0 or even, then left one
               <div className={[(idx%2 !=0) ? styles.right: styles.left, styles.thread].join(' ')} key={idx}>
@@ -59,13 +62,14 @@ export default function Thread({ threads, styles, apiUrl }){
                     
                   </div>
                   <div className={styles.postMain}>
-                    <img className={styles.threadImage} src={`${apiUrl}/uploads/${threadInfo["fileSavedName"]}`} alt={threadInfo["fileSavedName"]}/>
+                    <img className={styles.threadImage} src={threadInfo["isSpoiler"] ? "images/spoiler.png": `${apiUrl}/uploads/${threadInfo["fileSavedName"]}`} alt={threadInfo["fileSavedName"]}/>
                     <span>{threadInfo["text"]}</span>
                   </div>
                 </div>
                 { replies &&
                 <div className={styles.replies}>
                   {replies.map((reply, idx)=>{
+                    
                     return (
                       <div key={idx} className={styles.reply}>
                         <div className={styles.postInfo}>
@@ -76,7 +80,7 @@ export default function Thread({ threads, styles, apiUrl }){
                         </div>
                         <div className={styles.postMain}>
                           { reply["fileSavedName"] &&
-                          <img className={styles.replyImage} src={`${apiUrl}/uploads/${reply["fileSavedName"]}`} alt={reply["fileSavedName"]}/>
+                          <img className={styles.replyImage} src={reply["isSpoiler"] ? "images/spoiler.png": `${apiUrl}/uploads/${reply["fileSavedName"]}`} alt={reply["fileSavedName"]}/>
                           }
                           <span>{reply["text"]}</span>
                         </div>
