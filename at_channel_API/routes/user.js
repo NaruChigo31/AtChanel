@@ -39,6 +39,10 @@ router.post("/", async (req, res) => {
         let user = await Users.create({
             apikey: apikey,
         })
+        res.cookie('apikey', user.apikey, {
+          maxAge: 24 * 60 * 60 * 1000, // 1 day
+          sameSite: "lax"
+        })
         return res.status(201).json({ code:201, apikey: user.apikey })
     } catch(error) {
         console.error(error)

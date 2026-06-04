@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from "./threadForm.module.css";
 
 
+
 const allowedTypes = [
   // Images
   "image/jpeg",
@@ -41,6 +42,7 @@ export default function ThreadForm({ boardTag, apiUrl }){
       }
     )
 
+
     function validateForm(formData){
       let titleWarn = ""
       let textWarn = ""
@@ -66,13 +68,14 @@ export default function ThreadForm({ boardTag, apiUrl }){
         fileWarn = "You are required to upload file as OP"
       } else {
 
-        if(formData.get("file")["size"] > 3*(10**6)){
+        if(formData.get("file")["size"] > 3*1024*1024){
           fileWarn += "File size can't go above 3 mb\n"
         }
         if(!allowedTypes.includes(formData.get("file")["type"])){
           fileWarn += "This is unsuported file type\n"
         } 
         if(true){
+          
           // extra validation to be added
         }
 
@@ -87,28 +90,28 @@ export default function ThreadForm({ boardTag, apiUrl }){
         file: fileWarn
       }))
       console.log(formWarning)
+
+      return !(titleWarn || textWarn || fileWarn);
     }
+
 
     async function postThread(event) {
       event.preventDefault()
-  
-      console.log(event.currentTarget)
-  
+      
       const formData = new FormData(event.currentTarget)
       
       console.log([...formData.entries()])
       
       // validation
-      validateForm(formData)
+      const valid = validateForm(formData);
+      
+      // if (!valid) return;
       
   
       const res = await fetch(`${apiUrl}/board/${boardTag}/thread`, 
         { method: "POST",
-          headers: {
-            // to change!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            "apikey": "d8705a3a-7575-4acc-9297-fb2f1d7d3b8b"
-          },
-          body: formData
+          body: formData,
+          credentials: "include" 
         });
       let data = await res.json()
       
@@ -132,8 +135,8 @@ export default function ThreadForm({ boardTag, apiUrl }){
           <input placeholder="Anonymous" type="text" name="userName"/>
           <input type="file" name="file" />
           {/* Spoiler won't apear in formData if not checked */}
-          <input type='checkbox' name="isSpoiler" label='spLabel'/>
-          <label id="spLabel">spoiler?</label>
+          <input id="spoiler" type="checkbox" name="isSpoiler" />
+          <label htmlFor="spoiler">Spoiler?</label>
           <span className={styles.warn}>{formWarning["file"]}</span>
 
           <textarea type="text" name="text" ></textarea>

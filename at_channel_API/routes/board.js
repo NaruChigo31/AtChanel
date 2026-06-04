@@ -3,10 +3,40 @@ const { Boards, Users, Admins, Posts } = require("../db.js")
 const fs = require("fs")
 const { Op } = require("sequelize");
 
-
 const multer = require("multer")
 const path = require("path");
 const { log } = require('console');
+
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require("bcrypt")
+
+
+const allowedTypes = [
+  // Images
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/svg+xml",
+  "image/bmp",
+  "image/tiff",
+  "image/heic",
+  "image/heif",
+
+  // GIF
+  "image/gif",
+
+  // Videos
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  "video/quicktime", // .mov
+  "video/x-msvideo", // .avi
+  "video/mpeg",
+  "video/3gpp",
+  "video/x-matroska" // .mkv
+];
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -21,7 +51,72 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage: storage })
+const upload = multer({ 
+    storage: storage,
+    // limit 3 mb max
+    limits: {fileSize: 3*1024*1024},
+    fileFilter: function(req, file, cb) {
+      checkFileType(file, cb);
+    }
+})
+
+
+function checkFileType(file, cb) {
+
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true)
+    } else {
+        cb(new Error("Invalid file type. Only images and videos are allowed."))
+    }
+}
+
+
+async function anonAuth(req, res, next) {
+    
+    let apikey = req.cookies.apikey;
+    
+    if (!apikey) {
+        apikey = uuidv4();
+
+        const user = await Users.create({
+            apikey: apikey
+        });
+
+        res.cookie("apikey", apikey, {
+            maxAge: 24 * 60 * 60 * 1000,
+            sameSite: "lax",
+            httpOnly: true
+        });
+
+        req.user = user;
+        return next();
+    }
+
+    const user = await Users.findOne({
+        where: { apikey }
+    });
+
+    if (!user) {
+        const newKey = uuidv4();
+
+        const newUser = await Users.create({
+            apikey: newKey
+        });
+
+        res.cookie("apikey", newKey, {
+            maxAge: 24 * 60 * 60 * 1000,
+            sameSite: "lax",
+            httpOnly: true
+        });
+
+        req.user = newUser;
+        return next();
+    }
+
+    req.user = user;
+    return next();
+}
+
 
 
 const spacesInText = [" ","\n","\t"]
@@ -30,7 +125,13 @@ const router = express.Router()
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
+
 // router.use(cors());
+
+var cookieParser = require('cookie-parser');
+
+router.use(cookieParser());
+
 
 
 async function isAdminCheck(apikey, res, cb){
@@ -220,24 +321,28 @@ router.put("/:tag", async (req, res) =>{
 
 // about threads and posts on the board
 
-router.post("/:tag/thread", upload.single("file"), async (req, res) =>{
+router.post("/:tag/thread", upload.single("file"), anonAuth ,async (req, res) =>{
 
     let { body } = req
 
-    let yourApikey = req.headers.apikey
+    // let yourApikey = req.headers.apikey
 
-    if (!yourApikey){
-        return res.status(403).json({code:403, error: "Yo, where is your apikey?"})
-    } 
+    // if (!yourApikey){
+    //     return res.status(403).json({code:403, error: "Yo, where is your apikey?"})
+    // } 
 
-    let user = await Users.findOne({
-        where: {
-            apikey: yourApikey
-        }
-    })
-    if(!user){
-        return res.status(404).json({ code: 404, error: "Oops, looks like there's no user found" })
-    }
+    // let user = await Users.findOne({
+    //     where: {
+    //         apikey: yourApikey
+    //     }
+    // })
+    // if(!user){
+    //     return res.status(404).json({ code: 404, error: "Oops, looks like there's no user found" })
+    // }
+
+    let user = req.user
+    console.log(user)
+    console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHUI")
 
     let board = await Boards.findOne({
         where: {
@@ -286,8 +391,11 @@ router.post("/:tag/thread", upload.single("file"), async (req, res) =>{
         return res.status(200).json({code:200, file: req.file, thread})
 
     } catch(error){
+
         console.error(error)
-        return res.status(500).json({ code:500, error: "Oops, error ocured" })
+
+        return res.status(400).json({ error: error.message })
+        // return res.status(500).json({ code:500, error: "Oops, error ocured" })
     }
 })
 
