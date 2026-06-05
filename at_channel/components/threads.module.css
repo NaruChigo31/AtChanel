@@ -26,6 +26,10 @@
     /* background-color: aqua; */
 }
 
+.postInfo{
+    width: 100%;
+}
+
 .Op {
     display: block;
 }
@@ -39,14 +43,6 @@
 }
 .postDate{
     color: #202020;
-}
-
-.threadImage{
-    max-height: 250px;
-}
-
-.replyImage{
-    max-height: 125px;
 }
 
 .left{

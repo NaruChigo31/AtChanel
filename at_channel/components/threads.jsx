@@ -76,8 +76,11 @@ export default function Thread({ threads, apiUrl, boardTag }){
                     }} >[view all replies]</button>
                   </div>
                   <div className={styles.postMain}>
-                    
-                    <PostMedia fileUrl={`${apiUrl}/uploads/${threadInfo["fileSavedName"]}`} fileName={threadInfo["fileSavedName"]} isSpoiled={threadInfo["isSpoiler"]}/>
+                    <PostMedia 
+                    fileUrl={`${apiUrl}/uploads/${threadInfo["fileSavedName"]}`} 
+                    fileName={threadInfo["fileSavedName"]} 
+                    isSpoiled={threadInfo["isSpoiler"]}
+                    isOp={true}/>
                     
                     <span>{threadInfo["text"]}</span>
                   </div>

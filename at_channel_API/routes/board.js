@@ -44,8 +44,10 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
 
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    let newFileName = uniqueSuffix  + '-' + file.originalname
+    // TODO - maybe add up hashing to date
+    const uniqueCode = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    const extension = file.originalname.split('.').pop()
+    let newFileName = `${uniqueCode}.${extension}`
     cb(null, newFileName )
     // cb(null, file.originalname)
   }
@@ -341,8 +343,6 @@ router.post("/:tag/thread", upload.single("file"), anonAuth ,async (req, res) =>
     // }
 
     let user = req.user
-    console.log(user)
-    console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHUI")
 
     let board = await Boards.findOne({
         where: {
@@ -363,6 +363,9 @@ router.post("/:tag/thread", upload.single("file"), anonAuth ,async (req, res) =>
         return res.status(400).json({ code: 400, error: "Where's text" })
     }    
 
+    console.log(req.file)
+    console.log("flexflexflexflexflex")
+    let fixedName = Buffer.from(req.file.originalname, "latin1").toString("utf8");
 
     try{
 
@@ -373,7 +376,7 @@ router.post("/:tag/thread", upload.single("file"), anonAuth ,async (req, res) =>
             threadId: null,
             postAnswerIDs: body.postAnswerIDs || null,
             userName: body.userName || null,
-            fileOrigName: req.file.originalname,
+            fileOrigName: fixedName,
             fileSavedName: req.file.filename,
             isPinned: false,
             isSpoiler: body.isSpoiler || false,

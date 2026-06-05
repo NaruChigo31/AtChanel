@@ -1,0 +1,56 @@
+.imageContainer{
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    flex-direction: column;
+}
+
+.threadMedia{
+    max-height: 250px;
+}
+
+.replyMedia{
+    max-height: 125px;
+}
+
+.magnMedia {
+    border: 5px solid grey;
+    overflow: scroll;
+
+    /* Fixed size — adjust to taste */
+    max-width: 90vw;
+    max-height: 90vh;
+
+    /* Prevent the container itself from shrinking */
+    flex-shrink: 0;
+}
+
+.magnMedia img {
+    display: block;
+    max-width: none;  /* critical — stops the image shrinking to fit */
+    max-height: none; /* same for height */
+}
+
+.modalWrap{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: column;
+    
+    width: 100vw;
+    height: 100vh;
+
+    box-sizing: border-box;
+    padding: 3vh 5vw;
+    
+    background-color: rgba(110, 93, 93, 0.558);
+}
+
+.hid{
+    display: none;
+}
