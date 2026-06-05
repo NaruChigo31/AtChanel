@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from "./threads.module.css";
 
 export default function PostMedia({ fileUrl, fileName, isSpoiled }){

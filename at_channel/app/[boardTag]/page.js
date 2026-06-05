@@ -1,9 +1,9 @@
 import styles from "./boards.module.css";
-import "../globals.css";
+import "@/app/globals.css";
 
 import { redirect } from 'next/navigation'
-import ThreadForm from "./../../components/threadForm"
-import Threads from "./../../components/threads"
+import ThreadForm from "@/components/threadForm"
+import Threads from "@/components/threads"
 
 import Link from 'next/link'
 import Image from "next/image"
@@ -89,7 +89,7 @@ export default async function BoardPage({ params }) {
             <Link href={`${boardTag}/archive`}>[Archive]</Link>
         </div>
         { threads && 
-        <Threads threads={threads} apiUrl={apiUrl}/>
+        <Threads threads={threads} apiUrl={apiUrl} boardTag={boardTag}/>
         }
         <div className={styles.threadsBottom}></div>
       </div>

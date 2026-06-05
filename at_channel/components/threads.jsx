@@ -1,10 +1,16 @@
 "use client"
 import { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation"
 import styles from "./threads.module.css";
+
+import { redirect, RedirectType } from 'next/navigation'
 
 import PostMedia from "./postMedia"
 
-export default function Thread({ threads, apiUrl }){
+
+export default function Thread({ threads, apiUrl, boardTag }){
+
+    const router = useRouter()
 
     function dateRefmat(date){    
       const daysList = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -65,7 +71,9 @@ export default function Thread({ threads, apiUrl }){
                     <time className={styles.postDate} dateTime={threadInfo["createdAt"]} >{dateRefmat(threadInfo["createdAt"])}</time>
                     
                     <button>[reply]</button>
-                    
+                    <button onClick={()=>{
+                      router.push(`/${boardTag}/thread/${threadInfo["id"]}`)
+                    }} >[view all replies]</button>
                   </div>
                   <div className={styles.postMain}>
                     
@@ -88,7 +96,7 @@ export default function Thread({ threads, apiUrl }){
                         </div>
                         <div className={styles.postMain}>
                           { reply["fileSavedName"] &&
-                          <img className={styles.replyImage} src={reply["isSpoiler"] ? "images/spoiler.png": `${apiUrl}/uploads/${reply["fileSavedName"]}`} alt={reply["fileSavedName"]}/>
+                          <PostMedia fileUrl={`${apiUrl}/uploads/${reply["fileSavedName"]}`} fileName={reply["fileSavedName"]} isSpoiled={reply["fileSavedName"]}/>
                           }
                           <span>{reply["text"]}</span>
                         </div>
