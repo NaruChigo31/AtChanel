@@ -1,7 +1,11 @@
+"use client"
+import { useState, useEffect } from 'react';
 import styles from "./threads.module.css";
 
+import PostMedia from "./postMedia"
+
 export default function Thread({ threads, apiUrl }){
-    
+
     function dateRefmat(date){    
       const daysList = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -48,7 +52,9 @@ export default function Thread({ threads, apiUrl }){
           {threads.map((thread, idx) =>{
             let threadInfo = thread["thread"] 
             let replies = thread["replies"]
-            
+          
+
+
             return(
               // if index is 0 or even, then left one
               <div className={[(idx%2 !=0) ? styles.right: styles.left, styles.thread].join(' ')} key={idx}>
@@ -58,11 +64,13 @@ export default function Thread({ threads, apiUrl }){
                     <span className={styles.subject}>{threadInfo["title"]} </span>
                     <time className={styles.postDate} dateTime={threadInfo["createdAt"]} >{dateRefmat(threadInfo["createdAt"])}</time>
                     
-                    <span>[reply]</span>
+                    <button>[reply]</button>
                     
                   </div>
                   <div className={styles.postMain}>
-                    <img className={styles.threadImage} src={threadInfo["isSpoiler"] ? "images/spoiler.png": `${apiUrl}/uploads/${threadInfo["fileSavedName"]}`} alt={threadInfo["fileSavedName"]}/>
+                    
+                    <PostMedia fileUrl={`${apiUrl}/uploads/${threadInfo["fileSavedName"]}`} fileName={threadInfo["fileSavedName"]} isSpoiled={threadInfo["isSpoiler"]}/>
+                    
                     <span>{threadInfo["text"]}</span>
                   </div>
                 </div>
@@ -76,7 +84,7 @@ export default function Thread({ threads, apiUrl }){
                           <span className={styles.userName}>{reply["userName"] ? reply["userName"] : "Anonymous"} </span>
                           <time className={styles.postDate} datetime={reply["createdAt"]} >{dateRefmat(reply["createdAt"])}</time>
                     
-                          <span>[reply]</span>
+                          <button>[reply]</button>
                         </div>
                         <div className={styles.postMain}>
                           { reply["fileSavedName"] &&
