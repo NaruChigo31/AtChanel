@@ -1,8 +1,8 @@
 .imageContainer{
     display: flex;
-    align-items: start;
+    align-items: end;
     justify-content: start;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .threadMedia{

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
-import styles from "./threadForm.module.css";
+import styles from "./styles/threadForm.module.css";
 
 
 

@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react';
-import styles from "./postMedia.module.css";
+import styles from "./styles/postMedia.module.css";
 
 export default function PostMedia({ fileUrl, fileName, isSpoiled, isOp }){
 
@@ -13,16 +13,13 @@ export default function PostMedia({ fileUrl, fileName, isSpoiled, isOp }){
     if (!isSpoiled){
       return (
         <div className={styles.imageContainer} >
-          <a href={fileUrl}>{fileName}</a>
-          <div>
-            <img className={postTypeStyling()}
-            src={fileUrl} 
-            alt={fileName}
-            />
-            <button onClick={()=>{
-              setMagnified(true)
-            }} >Magn</button>
-          </div>
+          <img className={postTypeStyling()}
+          src={fileUrl} 
+          alt={fileName}
+          />
+          <button onClick={()=>{
+            setMagnified(true)
+          }} >Magn</button>
 
           {/* modal wrapper */}
           <div
