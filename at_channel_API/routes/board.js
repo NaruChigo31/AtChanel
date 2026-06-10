@@ -402,21 +402,12 @@ router.post("/:tag/thread", upload.single("file"), anonAuth ,async (req, res) =>
     }
 })
 
-router.post("/:tag/thread/:threadId/reply", upload.single("file"), async (req, res) =>{
+router.post("/:tag/thread/:threadId/reply", upload.single("file"), anonAuth, async (req, res) =>{
 
     let { body } = req
 
-    let yourApikey = req.headers.apikey
+    let user = req.user
 
-    if (!yourApikey){
-        return res.status(403).json({code:403, error: "Yo, where is your apikey?"})
-    } 
-
-    let user = await Users.findOne({
-        where: {
-            apikey: yourApikey
-        }
-    })
     if(!user){
         return res.status(404).json({ code: 404, error: "Oops, looks like there's no user found" })
     }
@@ -446,13 +437,14 @@ router.post("/:tag/thread/:threadId/reply", upload.single("file"), async (req, r
     if(!body.text){
         return res.status(400).json({ code: 400, error: "Where's text" })
     }  
-    let postAnswerIDs = null
+    
+    let answerIDs = null
+
     if(body.postAnswerIDs){
-        postAnswerIDs = JSON.parse(body.postAnswerIDs)
-        console.log(postAnswerIDs)
+        answerIDs = JSON.parse(body.postAnswerIDs)
     }
 
-
+ 
     try{
 
         let reply = await Posts.create({
@@ -460,7 +452,7 @@ router.post("/:tag/thread/:threadId/reply", upload.single("file"), async (req, r
             text: body.text,
             boardId: board.dataValues.id,
             threadId: req.params.threadId,
-            postAnswersIDs: postAnswerIDs || null,
+            postAnswersIDs: answerIDs || null,
             userName: body.userName || null,
             fileOrigName: req.file ? req.file.originalname : null,
             fileSavedName: req.file ? req.file.filename : null,

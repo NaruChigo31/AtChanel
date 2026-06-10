@@ -17,7 +17,6 @@
     border: 5px solid grey;
     overflow: scroll;
 
-    /* Fixed size — adjust to taste */
     max-width: 90vw;
     max-height: 90vh;
 

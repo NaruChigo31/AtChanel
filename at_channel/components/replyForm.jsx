@@ -1,7 +1,8 @@
 "use client"
 import { useState, useEffect } from 'react';
-import styles from "./styles/threadForm.module.css";
+import styles from "./styles/replyForm.module.css";
 
+import { useRouter } from "next/navigation"
 
 
 const allowedTypes = [
@@ -30,31 +31,24 @@ const allowedTypes = [
   "video/x-matroska" // .mkv
 ];
 
+// hiding function should be added externaly
 
-export default function ThreadForm({ boardTag, apiUrl }){
-
-    const [hid, setHid] = useState(true)
+export default function ReplyForm({ boardTag, threadId, directReplyIds, apiUrl, hidden, onClose }){
+    
+  
+    const [formText, setFormText] = useState("")
     const [formWarning, setFormWarning] = useState(
-      {
-        "title":"",
-        "text":"",
-        "file":"",
-      }
+    {
+      "text":"",
+      "file":""
+    }
     )
 
+    const router = useRouter()
 
     function validateForm(formData){
-      let titleWarn = ""
       let textWarn = ""
       let fileWarn = ""
-
-      if (!formData.get("title")){
-        titleWarn = "You are required to have a title"
-      } else {
-        if(true){
-          // extra validation to be added
-        }
-      } 
 
       if (!formData.get("text")){
         textWarn = "You are required to have some text"
@@ -64,9 +58,7 @@ export default function ThreadForm({ boardTag, apiUrl }){
         }
       } 
 
-      if (!formData.get("file")["name"]){
-        fileWarn = "You are required to upload file as OP"
-      } else {
+      if (formData.get("file")["name"]) {
 
         if(formData.get("file")["size"] > 3*1024*1024){
           fileWarn += "File size can't go above 3 mb\n"
@@ -85,17 +77,16 @@ export default function ThreadForm({ boardTag, apiUrl }){
       // setting validation messages
       setFormWarning( prevState => ({
         ...prevState,
-        title: titleWarn,
         text: textWarn,
         file: fileWarn
       }))
-      // console.log(formWarning)
+      console.log(formWarning)
 
-      return !(titleWarn || textWarn || fileWarn);
+      return !(textWarn || fileWarn);
     }
 
 
-    async function postThread(event) {
+    async function postReply(event) {
       event.preventDefault()
       
       const formData = new FormData(event.currentTarget)
@@ -103,12 +94,13 @@ export default function ThreadForm({ boardTag, apiUrl }){
       console.log([...formData.entries()])
       
       // validation
+      formData.append("postAnswerIDs", JSON.stringify(directReplyIds))
       const valid = validateForm(formData);
+      console.log([...formData.entries()],directReplyIds)
+      // if (!valid) return;
       
-      if (!valid) return;
-      
-  
-      const res = await fetch(`${apiUrl}/board/${boardTag}/thread`, 
+    
+      const res = await fetch(`${apiUrl}/board/${boardTag}/thread/${threadId}/reply`, 
         { method: "POST",
           body: formData,
           credentials: "include" 
@@ -116,22 +108,21 @@ export default function ThreadForm({ boardTag, apiUrl }){
       let data = await res.json()
       
       console.log(data)
+
+      router.push(`/${boardTag}/thread/${postObj["id"]}`)
         
     }
 
-    function closeOpenForm(){
-      setHid(!hid)
-      console.log(hid ? "opened" : "closed")
-    }
     
     return (
-      <div className={styles.initialDiv}>
-        <button onClick={closeOpenForm}>[{!hid ? "Close form":"Create Post"}]</button>
-        <form className={hid ? styles.hidden : styles.form} onSubmit={postThread}>
-          
-          <input placeholder="subject" type="text" name="title"/>
-          <span className={styles.warn}>{formWarning["title"]}</span>
-          
+      <div className={ hidden ? styles.hidden : styles.replyFormDiv}>
+        <div id="DragDiv">
+            <button onClick={onClose}>[Close form]</button>
+            <p>Drag here</p>
+            <p>Reply to {threadId}</p>
+        </div>
+        <form className={styles.form} onSubmit={postReply}>
+
           <input placeholder="Anonymous" type="text" name="userName"/>
           <input type="file" name="file" />
           {/* Spoiler won't apear in formData if not checked */}
@@ -139,9 +130,9 @@ export default function ThreadForm({ boardTag, apiUrl }){
           <label htmlFor="spoiler">Spoiler?</label>
           <span className={styles.warn}>{formWarning["file"]}</span>
 
-          <textarea type="text" name="text" ></textarea>
+          <textarea type="text" name="text" onChange={(e)=>{setFormText(e.target.value)}} >{formText}</textarea>
           <span className={styles.warn}>{formWarning["text"]}</span>
-          
+          <p>ds{directReplyIds}</p>
           <button type="submit">Post</button>
         </form>
       </div>

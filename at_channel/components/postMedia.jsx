@@ -48,7 +48,6 @@ export default function PostMedia({ fileUrl, fileName, isSpoiled, isOp }){
       return (
         <div className={styles.imageContainer} >
 
-          <a href={fileUrl}>{fileName}</a>
           <div>
             <img className={postTypeStyling()}
             onClick={()=>{

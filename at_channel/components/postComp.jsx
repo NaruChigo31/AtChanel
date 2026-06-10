@@ -1,5 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
+import { Children } from 'react';
+
 import { useRouter } from "next/navigation"
 import styles from "./styles/threads.module.css";
 
@@ -7,7 +9,7 @@ import { redirect, RedirectType } from 'next/navigation'
 
 import PostMedia from "./postMedia"
 
-export default function PostComp({ postObj, isOp, boardTag, apiUrl }){
+export default function PostComp({ postObj, isOp=false, boardTag, apiUrl, replyFunc }){
 
   const router = useRouter()
 
@@ -64,7 +66,7 @@ export default function PostComp({ postObj, isOp, boardTag, apiUrl }){
         }
 
       </div>
-      <button>[reply]</button>
+      <button onClick={replyFunc ? replyFunc: null}>[reply]</button>
       { isOp &&
         <button onClick={()=>{
             router.push(`/${boardTag}/thread/${postObj["id"]}`)

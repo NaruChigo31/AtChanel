@@ -42,10 +42,21 @@ router.get("/:threadId", async (req, res) =>{
     replies = await Posts.findAll({
         where:{
             threadId: thread.dataValues.id
-        }
+        },
+        order: [['isPinned', 'DESC'], ['createdAt', 'ASC']]
     })
+
+    let repliesList = []
+
+    for (let reply of replies){
+
+            repliesList.push({
+                id : reply.dataValues.id,
+                reply: reply
+            })
+        }
     
-    return res.status(200).json({ code:200, thread, replies })
+    return res.status(200).json({ code:200, thread, replies: repliesList })
 
 })
 

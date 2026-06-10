@@ -2,9 +2,11 @@ import styles from "../../boards.module.css";
 import "@/app/globals.css";
 
 import { redirect } from 'next/navigation'
-import ThreadForm from "@/components/threadForm"
+import ReplyForm from "@/components/ReplyForm"
 import Threads from "@/components/threads"
 import PostMedia from "@/components/postMedia";
+import PostComp from "@/components/postComp";
+
 
 import Link from 'next/link'
 import Image from "next/image"
@@ -16,8 +18,8 @@ async function getThreadData(id) {
   const res = await fetch(`${apiUrl}/thread/${id}`, { method: "GET", cache: "no-store" });
   const data = await res.json();
 
-  console.log(data.thread)
-  // console.log(data.replies)
+  // console.log(data.thread)
+  console.log(data.replies)
   return data;
 }
 
@@ -45,6 +47,7 @@ async function getGif() {
 }
 
 
+
 export default async function ThreadPage({ params }) {
     const { boardTag,id } = params
 
@@ -56,8 +59,8 @@ export default async function ThreadPage({ params }) {
       getGif(),
     ]);
 
-    console.log("hui")
-    console.log(getThreadData(id)["thread"])
+    // console.log(threadData)
+    // console.log(getThreadData(id)["thread"])
   
     return(
       <main>
@@ -78,15 +81,24 @@ export default async function ThreadPage({ params }) {
               <p>{board.description}</p>
           </div>
 
+          <ReplyForm boardTag={boardTag} threadId={id} apiUrl={apiUrl}/>
+
           <div className={styles.threadsUp}>
               <Link href={`${boardTag}/catalog`}>[Catalog]</Link>
               <Link href={`${boardTag}/archive`}>[Archive]</Link>
           </div>
-          { threadData.thread && 
+          { threadData && 
           <div>
-            <p>hui</p>
-            <p>{threadData.thread["title"]}</p>
-            <PostMedia fileUrl={`${apiUrl}/uploads/${threadData.thread["fileSavedName"]}`} fileName={threadData.thread["fileSavedName"]} isSpoiled={threadData.thread["isSpoiler"]}/>
+            <PostComp postObj={threadData.thread} isOp={true} boardTag={boardTag} apiUrl={apiUrl}/>
+            { threadData.replies &&
+            <div>
+              {threadData.replies.map((reply, idx)=>{
+                return(
+                  <PostComp index={idx} postObj={reply["reply"]} boardTag={boardTag} apiUrl={apiUrl}/>
+                )
+              })}
+            </div>
+            }
           </div>
           }
           <div className={styles.threadsBottom}></div>
